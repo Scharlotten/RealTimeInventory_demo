@@ -1,0 +1,136 @@
+version: "3.5"
+
+services:
+  postgres_host:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "dummy"
+    command:  ["postgres", "-c", "wal_level=logical"]
+    volumes:
+      - ./postgres_start:/docker-entrypoint-initdb.d/
+    networks:
+      - anna
+
+  orders:
+    container_name: orders
+    build:
+      context: ./orders
+      dockerfile: Dockerfile
+    networks:
+      - anna
+    volumes:
+      - "./orders/:/orders"
+    working_dir: /orders
+    command: python3.7 ./publish_order.py -f ./producer.config -t customer_orders
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "dummy"
+    depends_on:
+      - postgres_host
+      - updater
+
+  inventory:
+      container_name: inventory
+      build:
+        context: ./refill_inventory
+        dockerfile: Dockerfile
+      networks:
+        - anna
+      volumes:
+        - "./refill_inventory/:/refill_inventory"
+      working_dir: /refill_inventory
+      command: python3.7 ./refill_inventory.py -f ./producer.config -t inventory_refills
+      environment:
+        POSTGRES_PASSWORD: "postgres"
+        POSTGRES_USER: "postgres"
+        POSTGRES_DB: "dummy"
+      depends_on:
+        - postgres_host
+        - updater
+
+  webserver:
+    container_name: webserver
+    build:
+      context: ./websocket
+      dockerfile: Dockerfile
+    networks:
+      - anna
+    volumes:
+      - "./websocket/:/workdir/websocket/"
+    working_dir: /workdir
+    command: python3.7 ./websocket/server.py -f ./websocket/ccloud.config -t inventory_final
+    #total_ps3_retention
+    ports:
+      - "8080:8080"
+
+  updater:
+    container_name: updater
+    build:
+      context: ./updater
+      dockerfile: Dockerfile
+    networks:
+      - anna
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "dummy"
+    depends_on:
+      - postgres_host
+
+  shipping:
+    container_name: shipping
+    build:
+      context: ./shipping_service
+      dockerfile: Dockerfile
+    networks:
+      - anna
+    volumes:
+      - "./shipping_service/:/workdir/shipping_service/"
+    working_dir: /workdir
+    command: python3.7 shipping_service/consume_orders.py -f shipping_service/consumer.config -t customer_orders
+
+  connect:
+    image: confluentinc/cp-kafka-connect:latest
+    container_name: connect
+    depends_on:
+      - postgres_host
+    volumes:
+      - ./jars:/etc/kafka-connect/jars
+      - ./debezium_source_conn:/workarea
+    command: [ "connect-standalone", "/workarea/worker.properties", "/workarea/postgres_conn.properties" ]
+    networks:
+      - anna
+
+#  node:
+#    container_name: node
+#    build:
+#      context: ./my-app
+#      dockerfile: Dockerfile
+#    user: "node"
+#    working_dir: /home/node/app
+#    environment:
+#      - NODE_ENV=development
+#    volumes:
+#      - ./my-app:/home/node/app
+#    command: "npm start"
+#    ports:
+#      - "3000:3000"
+#    networks:
+#      - anna
+
+
+networks:
+  anna:
+
+volumes:
+  postgres_start:
+  jars:
+  debezium_source_conn:
+
+

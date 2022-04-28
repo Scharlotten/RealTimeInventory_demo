@@ -1,0 +1,9 @@
+/.blackbox/pubring.gpg~
+/.blackbox/pubring.kbx~
+/.blackbox/secring.gpg
+orders/producer.config
+refill_inventory/producer.config
+shipping_service/consumer.config
+websocket/ccloud.config
+.idea/
+.blackbox/
