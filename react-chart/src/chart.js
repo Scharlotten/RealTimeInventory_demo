@@ -32,7 +32,7 @@ export const options = {
     },
     title: {
       display: true,
-      text: 'Chart.js Bar Chart',
+      text: 'Real time Inventory',
     },
   },
 };
@@ -65,6 +65,8 @@ export function Chart() {
           setLabels(horizontal_labels);
       }
       data_points[this_product] = this_total
+      console.log(`this_product = ${this_product}`)
+      console.log(`this_total = ${this_total}`)
       setDataPoints(data_points);
 
       setBarState({

@@ -64,7 +64,7 @@ services:
     volumes:
       - "./websocket/:/workdir/websocket/"
     working_dir: /workdir
-    command: python3.7 ./websocket/server.py -f ./websocket/ccloud.config -t inventory_final
+    command: python3.7 ./websocket/server.py -f ./websocket/ccloud.config -t FINAL_INVENTORY
     #total_ps3_retention
     ports:
       - "8080:8080"
@@ -105,25 +105,24 @@ services:
       - ./debezium_source_conn:/workarea
     command: [ "connect-standalone", "/workarea/worker.properties", "/workarea/postgres_conn.properties" ]
     networks:
+    - anna
+
+  node:
+    container_name: node
+    build:
+      context: react-chart
+      dockerfile: Dockerfile
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./my-app:/home/node/app
+    command: "npm start"
+    ports:
+      - "3000:3000"
+    networks:
       - anna
-
-#  node:
-#    container_name: node
-#    build:
-#      context: ./my-app
-#      dockerfile: Dockerfile
-#    user: "node"
-#    working_dir: /home/node/app
-#    environment:
-#      - NODE_ENV=development
-#    volumes:
-#      - ./my-app:/home/node/app
-#    command: "npm start"
-#    ports:
-#      - "3000:3000"
-#    networks:
-#      - anna
-
 
 networks:
   anna:
@@ -132,5 +131,3 @@ volumes:
   postgres_start:
   jars:
   debezium_source_conn:
-
-

@@ -31,7 +31,7 @@ def create_order(frequency=100000):
         output = dict()
         output["customer"] = customers.iloc[customers_rand].filter(items=["id", "first_name", "last_name"]).to_dict()
         output["order"] = products.iloc[products_rand].to_dict()
-        output["order"]["quantity"] = randint(200, 700)
+        output["order"]["quantity"] = randint(10, 50)
         print(output)
         counter += 1
         yield output, output.get("customer").get("id")
@@ -72,4 +72,4 @@ if __name__ == "__main__":
 
         print("Producing record: {}\t{}".format(record_key, record_value))
         producer.produce(topic, key=str(record_key), value=json.dumps(record_value), on_delivery=acked)
-        sleep(1)
+        sleep(2)

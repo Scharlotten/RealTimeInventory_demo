@@ -23,7 +23,7 @@ def connect_to_postgres():
 
 def refill_inventory():
     products = pd.read_sql("select * from products", engine)
-    products["refill"] = 700
+    products["refill"] = 1000
     prod_dict = products.to_dict(orient="records")
     for product in prod_dict:
         if product:
@@ -68,4 +68,4 @@ if __name__ == "__main__":
 
             print("Producing record: {}\t{}".format(record_key, record_value))
             producer.produce(topic, key=str(record_key), value=json.dumps(record_value), on_delivery=acked)
-            sleep(8)
+            sleep(1.5)

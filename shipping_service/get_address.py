@@ -2,7 +2,7 @@ import requests
 from ccloud_lib import read_ccloud_config
 
 
-def get_address(id : int, config_file: str = "./shipping_service/ksql.config", ksql_topic: str = "CUSTOMERS"):
+def get_address(id : int, config_file: str = "./shipping_service/ksql_secret.config", ksql_topic: str = "CUSTOMERS"):
     conf = read_ccloud_config(config_file)
     headers = {
         'Accept': 'application/vnd.ksql.v1+json',
