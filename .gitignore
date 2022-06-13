@@ -4,6 +4,9 @@
 orders/producer.config
 refill_inventory/producer.config
 shipping_service/consumer.config
+
 websocket/ccloud.config
 .idea/
 .blackbox/
+./debezium_source_conn/worker.properties
+./shipping_service/ksql_secret.config

@@ -103,7 +103,7 @@ services:
     volumes:
       - ./jars:/etc/kafka-connect/jars
       - ./debezium_source_conn:/workarea
-    command: [ "connect-standalone", "/workarea/worker_secret.properties", "/workarea/postgres_conn.properties" ]
+    command: [ "connect-standalone", "/workarea/worker.properties", "/workarea/postgres_conn.properties" ]
     networks:
     - anna
 
